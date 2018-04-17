@@ -18,6 +18,8 @@ class NowPlayingViewController: UIViewController, UITableViewDataSource {
         super.viewDidLoad()
         tableView.dataSource = self
         // Do any additional setup after loading the view.
+        tableView.rowHeight = 200
+        
         
         let url = URL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=36f2a44eeaded91d2c4f5089a3462173")!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
