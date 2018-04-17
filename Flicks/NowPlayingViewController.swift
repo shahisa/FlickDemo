@@ -8,11 +8,15 @@
 
 import UIKit
 
-class NowPlayingViewController: UIViewController {
+class NowPlayingViewController: UIViewController, UITableViewDataSource {
 
+    @IBOutlet weak var tableView: UITableView!
+    var movies: [[String:Any]] = []
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        tableView.dataSource = self
         // Do any additional setup after loading the view.
         
         let url = URL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=36f2a44eeaded91d2c4f5089a3462173")!
@@ -27,6 +31,8 @@ class NowPlayingViewController: UIViewController {
                 let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as! [String:Any]
                 print(dataDictionary)
                 let movies = dataDictionary["results"] as! [[String:Any]]
+                self.movies = movies
+                self.tableView.reloadData()
                 for movie in movies {
                     let title = movie["title"] as! String
                     print(title)
@@ -35,6 +41,19 @@ class NowPlayingViewController: UIViewController {
         }
         task.resume()
     
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return movies.count
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
+        let movie = movies[indexPath.row]
+        let title = movie["title"] as! String
+        let overview = movie["overview"] as! String
+        cell.titleLabel.text = title
+        cell.overviewLabel.text = overview
+        
+        return cell
     }
 
     override func didReceiveMemoryWarning() {
