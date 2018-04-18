@@ -13,6 +13,7 @@ class NowPlayingViewController: UIViewController, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
     var movies: [[String:Any]] = []
+    var refreshControl: UIRefreshControl!
     
     
     override func viewDidLoad() {
@@ -20,8 +21,19 @@ class NowPlayingViewController: UIViewController, UITableViewDataSource {
         tableView.dataSource = self
         // Do any additional setup after loading the view.
         tableView.rowHeight = 200
+        fetchMovies()
+       
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector (NowPlayingViewController.didPullToRefresh(_:)), for: .valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
+    
+    }
+    @objc func didPullToRefresh(_ refreshControl:UIRefreshControl){
         
-        
+        fetchMovies()
+    }
+    
+    func fetchMovies(){
         let url = URL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=36f2a44eeaded91d2c4f5089a3462173")!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
@@ -36,15 +48,17 @@ class NowPlayingViewController: UIViewController, UITableViewDataSource {
                 let movies = dataDictionary["results"] as! [[String:Any]]
                 self.movies = movies
                 self.tableView.reloadData()
-                for movie in movies {
+                    for movie in movies {
                     let title = movie["title"] as! String
                     print(title)
                 }
             }
         }
         task.resume()
-    
+        // self.refreshControl.endRefreshing()
+
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return movies.count
     }
